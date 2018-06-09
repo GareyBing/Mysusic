@@ -4,9 +4,9 @@
 extern "C" JNIEXPORT jstring
 
 JNICALL
-Java_com_hgb_mymusic_MainActivity_stringFromJNI(
+Java_com_myplayer_Demo_stringFromJNI(
         JNIEnv *env,
         jobject /* this */) {
-    std::string hello = "Hello from C++";
+    std::string hello = "First Hello from C++";
     return env->NewStringUTF(hello.c_str());
 }

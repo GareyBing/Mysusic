@@ -21,9 +21,10 @@ public:
     pthread_t decodeThread;
     AVFormatContext *pFormatCtx= NULL;
     WlAudio *audio = NULL;
+    WlPlaystatus *playstatus = NULL;
 
 public:
-    WlFFmpeg(WlCallJAva *callJAva, const char *url);
+    WlFFmpeg(WlPlaystatus *playstatus,WlCallJAva *callJAva, const char *url);
     ~WlFFmpeg();
     void parpared();
     void decodeFFmpegThread();

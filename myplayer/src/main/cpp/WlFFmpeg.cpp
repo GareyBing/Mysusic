@@ -5,9 +5,10 @@
 
 #include "WlFFmpeg.h"
 
-WlFFmpeg::WlFFmpeg(WlCallJAva *callJAva, const char *url) {
+WlFFmpeg::WlFFmpeg(WlPlaystatus *playstatus,WlCallJAva *callJAva, const char *url) {
     this->callJAva = callJAva;
     this->url= url;
+    this->playstatus = playstatus;
 }
 
 void *decodeFFmpeg(void *data)
@@ -55,7 +56,7 @@ void WlFFmpeg::decodeFFmpegThread() {
         {
             if(audio == NULL)
             {
-                audio = new WlAudio();
+                audio = new WlAudio(playstatus);
                 audio->streamIndex = i;
                 audio->codecpar = pFormatCtx->streams[i]->codecpar;
             }
@@ -133,9 +134,10 @@ void WlFFmpeg::start() {
                 {
                     LOGD("解码第 %d 帧", count)
                 }
-                av_packet_free(&avPacket);
-                av_free(avPacket);
-                avPacket = NULL;
+//                av_packet_free(&avPacket);
+//                av_free(avPacket);
+//                avPacket = NULL;
+                audio->queue->putAcpacket(avPacket);
                 break;
             } else {
                 av_packet_free(&avPacket);
@@ -149,6 +151,22 @@ void WlFFmpeg::start() {
             avPacket = NULL;
             break;
         }
+    } 
+
+    while(audio->queue->getQueueSize() > 0)
+    {
+        AVPacket *avPacket = av_packet_alloc();
+        audio->queue->getAvpacket(avPacket);
+        av_packet_free(&avPacket);
+        av_free(avPacket);
+
+        avPacket = NULL;
+
+        if(LOG_DEBUG)
+        {
+            LOGD("解码完成");
+        }
+
     }
 
 

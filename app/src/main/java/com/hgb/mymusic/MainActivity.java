@@ -2,33 +2,41 @@ package com.hgb.mymusic;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 
 import com.myplayer.Demo;
+import com.myplayer.listener.WlOnParparedListener;
+import com.myplayer.palyer.WlPlay;
+
+import log.Mylog;
 
 public class MainActivity extends AppCompatActivity {
 
-    // Used to load the 'native-lib' library on application startup.
-//    static {
-//        System.loadLibrary("native-lib");
-//    }
 
-        private Demo demo;
+    private WlPlay wlPlayer;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        demo = new Demo();
+        wlPlayer = new WlPlay();
+        wlPlayer.setWlOnParparedListener(new WlOnParparedListener(){
 
-        // Example of a call to a native method
-        TextView tv = (TextView) findViewById(R.id.sample_text);
-        //tv.setText(demo.stringFromJNI());
-        demo.testFfmpg();
+            //解码
+            @Override
+            public void onParpare() {
+                Mylog.d("MainActivity Parpared..............start play");
+                wlPlayer.start();
+            }
+
+        });
+
     }
 
-    /**
-     * A native method that is implemented by the 'native-lib' native library,
-     * which is packaged with this application.
-     */
-   // public native String stringFromJNI();
+    public void begin(View view) {
+        Log.d("hgb", "begin");
+        wlPlayer.setSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3");
+        wlPlayer.parpared();
+    }
 }

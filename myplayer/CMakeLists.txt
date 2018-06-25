@@ -47,7 +47,11 @@ add_library( # Sets the name of the library.
 
              SHARED
 
-             src/main/cpp/native-lib.cpp )
+             src/main/cpp/native-lib.cpp
+             src/main/cpp/WlAudio.cpp
+             src/main/cpp/WlCallJAva.cpp
+             src/main/cpp/WlFFmpeg.cpp
+             )
 
 find_library( # Sets the name of the path variable.
               log-lib

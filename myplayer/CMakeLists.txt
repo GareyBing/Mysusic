@@ -53,6 +53,7 @@ add_library( # Sets the name of the library.
              src/main/cpp/WlFFmpeg.cpp
              src/main/cpp/WlPlaystatus.cpp
              src/main/cpp/WLQueue.cpp
+
              )
 
 find_library( # Sets the name of the path variable.
@@ -71,6 +72,8 @@ target_link_libraries( # Specifies the target library.
                        postproc-54
                        swresample-2
                        swscale-4
+
+                       OpenSLES
 
                        ${log-lib} )
 

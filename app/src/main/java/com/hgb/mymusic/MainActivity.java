@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     public void begin(View view) {
         Log.d("hgb", "begin");
         wlPlayer.setSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3");
+       // wlPlayer.setSource("/mnt/sdcard/other/1.mp3");
         wlPlayer.parpared();
     }
 }

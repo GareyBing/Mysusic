@@ -117,8 +117,11 @@ void WlFFmpeg::start() {
         return;
     }
     LOGD("WlFFmpeg::start().....");
+
+    audio->play();
+
     int count = 0;
-    while (1)
+    while (playstatus != NULL && !playstatus->exit)
     {
         AVPacket *avPacket= av_packet_alloc();
         int frame = av_read_frame(pFormatCtx, avPacket);
@@ -149,26 +152,34 @@ void WlFFmpeg::start() {
             av_packet_free(&avPacket);
             av_free(avPacket);
             avPacket = NULL;
-            break;
+
+            while (playstatus != NULL && !playstatus->exit)
+            {
+                if(audio->queue->getQueueSize() > 0 )
+                {
+                    continue;
+                } else{
+                    playstatus->exit = true;
+                }
+            }
         }
     } 
 
-    while(audio->queue->getQueueSize() > 0)
+//    while(audio->queue->getQueueSize() > 0)
+//    {
+//        AVPacket *avPacket = av_packet_alloc();
+//        audio->queue->getAvpacket(avPacket);
+//        av_packet_free(&avPacket);
+//        av_free(avPacket);
+//
+//        avPacket = NULL;
+//
+//    }
+
+    if(LOG_DEBUG)
     {
-        AVPacket *avPacket = av_packet_alloc();
-        audio->queue->getAvpacket(avPacket);
-        av_packet_free(&avPacket);
-        av_free(avPacket);
-
-        avPacket = NULL;
-
-        if(LOG_DEBUG)
-        {
-            LOGD("解码完成");
-        }
-
+        LOGD("解码完成");
     }
-
 
 }
 

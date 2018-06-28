@@ -1,9 +1,12 @@
 package com.myplayer.palyer;
 
+import android.support.v4.app.NavUtils;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.myplayer.listener.WlOnParparedListener;
+import com.myplayer.listener.WlOnloadListener;
+import com.myplayer.listener.WlOnpauseResumeLintener;
 import com.myplayer.log.Mylog;
 
 public class WlPlay {
@@ -21,6 +24,12 @@ public class WlPlay {
     }
 
     private String source;
+    private WlOnloadListener wlOnloadListener;
+    public WlOnpauseResumeLintener wlOnpauseResumeLintener;
+
+    public void setWlOnpauseResumeLintener(WlOnpauseResumeLintener wlOnpauseResumeLintener) {
+        this.wlOnpauseResumeLintener = wlOnpauseResumeLintener;
+    }
 
     private WlOnParparedListener wlOnParparedListener;
     public WlPlay (){
@@ -35,6 +44,11 @@ public class WlPlay {
         this.wlOnParparedListener = wlOnParparedListener;
     }
 
+    public void setWlOnloadListener(WlOnloadListener wlOnloadListener) {
+        this.wlOnloadListener = wlOnloadListener;
+    }
+
+
     public void parpared() {
         Log.e("hgb","parpared");
         if(TextUtils.isEmpty(source)){
@@ -42,6 +56,7 @@ public class WlPlay {
             return;
         }
 
+        onCallLoad(true);
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -66,6 +81,21 @@ public class WlPlay {
         }).start();
     }
 
+    public void pause(){
+        n_pause();
+        if(wlOnpauseResumeLintener != null){
+            wlOnpauseResumeLintener.onPause(true);
+        }
+    }
+
+    public void resume(){
+        n_pause();
+        if(wlOnpauseResumeLintener != null){
+            wlOnpauseResumeLintener.onPause(false);
+        }
+    }
+
+
 
     public void onCallParpare() {
         Log.d("hgb","C++ call java onCallparpare.......");
@@ -73,7 +103,16 @@ public class WlPlay {
             wlOnParparedListener.onParpare();
         }
     }
-    public native void n_parpared(String source);
 
-    public native void n_start();
+    public void onCallLoad(Boolean load){
+        if(wlOnloadListener != null) {
+            wlOnloadListener.onLoad(load);
+        }
+    }
+
+    private native void n_parpared(String source);
+
+    private native void n_start();
+    private native void n_pause();
+    private native void n_resume();
 }

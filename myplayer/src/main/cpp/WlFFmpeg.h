@@ -29,6 +29,8 @@ public:
     void parpared();
     void decodeFFmpegThread();
     void start();
+    void pause();
+    void resume();
 
 };
 

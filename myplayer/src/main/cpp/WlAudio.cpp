@@ -4,10 +4,11 @@
 
 #include "WlAudio.h"
 
-WlAudio::WlAudio(WlPlaystatus *playstatus) {
+WlAudio::WlAudio(WlPlaystatus *playstatus, int sample_rate, WlCallJAva *callJAva) {
     this->playstatus = playstatus;
+    this->sample_rate = sample_rate;
     queue = new WLQueue(playstatus);
-    buffer = (uint8_t *)(av_malloc(44100 * 2 * 2));
+    buffer = (uint8_t *)(av_malloc(sample_rate * 2 * 2));
 
 }
 
@@ -33,6 +34,22 @@ int WlAudio::resampleAudio() {//重采样,
 
     while(playstatus != NULL && !playstatus)
     {
+        if(queue->getQueueSize() == 0)
+        {
+            if(playstatus->load)
+            {
+                playstatus->load = true;
+                callJAva->onCallLoad(CHILD_THREAD, true);
+            }
+            continue;
+        } else{
+            if(playstatus->load)
+            {
+                callJAva->onCallLoad(CHILD_THREAD, false);
+            }
+        }
+
+
         avPacket = av_packet_alloc();
         if(queue->getAvpacket(avPacket) != 0)
         {
@@ -186,7 +203,7 @@ void WlAudio::initOpenSLES() {
     SLDataFormat_PCM pcm = {
             SL_DATAFORMAT_PCM,//pcm 数据
             2,//2个声道
-            SL_SAMPLINGRATE_44_1,//44100hz的频率
+            getCurrentSampleRateOpensles(sample_rate),//44100hz的频率
             SL_PCMSAMPLEFORMAT_FIXED_16,
             SL_PCMSAMPLEFORMAT_FIXED_16,
             SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT,//立体声（前左前右）
@@ -206,7 +223,7 @@ void WlAudio::initOpenSLES() {
     (*pcmPlayerObject)->Realize(pcmPlayerObject, SL_BOOLEAN_FALSE);
 
     //得到接口器调用， 获取 player接口
-    (*pcmPlayerObject)->GetInterface(pcmPlayerObject, SL_IID_PLAY, &pclPlayerplay);
+    (*pcmPlayerObject)->GetInterface(pcmPlayerObject, SL_IID_PLAY, &pcmPlayerplay);
 
 
     //注册回调缓冲区， 获取缓冲队列接口
@@ -216,7 +233,73 @@ void WlAudio::initOpenSLES() {
     (*pcmBufferQueue)->RegisterCallback(pcmBufferQueue, pcmBufferCallBack, NULL);
 
     //  获取播放状态接口
-    (*pclPlayerplay)->SetPlayState(pclPlayerplay, SL_PLAYSTATE_PLAYING);
+    (*pcmPlayerplay)->SetPlayState(pcmPlayerplay, SL_PLAYSTATE_PLAYING);
     pcmBufferCallBack(pcmBufferQueue, this);
 
+}
+
+int WlAudio::getCurrentSampleRateOpensles(int sample_rate) {
+    int rate = 0;
+    switch (sample_rate)
+    {
+        case 8000:
+            rate = SL_SAMPLINGRATE_8;
+            break;
+        case 11025:
+            rate = SL_SAMPLINGRATE_11_025;
+            break;
+        case 12000:
+            rate = SL_SAMPLINGRATE_12;
+            break;
+        case 16000:
+            rate = SL_SAMPLINGRATE_16;
+            break;
+        case 22050:
+            rate = SL_SAMPLINGRATE_22_05;
+            break;
+        case 24000:
+            rate = SL_SAMPLINGRATE_24;
+            break;
+        case 32000:
+            rate = SL_SAMPLINGRATE_32;
+            break;
+        case 44100:
+            rate = SL_SAMPLINGRATE_44_1;
+            break;
+        case 48000:
+            rate = SL_SAMPLINGRATE_48;
+            break;
+        case 64000:
+            rate = SL_SAMPLINGRATE_64;
+            break;
+        case 88200:
+            rate = SL_SAMPLINGRATE_88_2;
+            break;
+        case 96000:
+            rate = SL_SAMPLINGRATE_96;
+            break;
+        case 192000:
+            rate = SL_SAMPLINGRATE_192;
+            break;
+        default:
+            rate = SL_SAMPLINGRATE_44_1;
+    }
+
+    return rate;
+}
+
+void WlAudio::pause() {
+    if(pcmPlayerObject != NULL)
+    {
+        (*pcmPlayerplay)->SetPlayState(pcmPlayerplay, SL_PLAYSTATE_PAUSED);
+    }
+
+
+}
+
+void WlAudio::resume() {
+    if(pcmPlayerObject != NULL)
+    {
+        (*pcmPlayerplay)->SetPlayState(pcmPlayerplay, SL_PLAYSTATE_PLAYING);
+    }
 }

@@ -56,7 +56,7 @@ void WlFFmpeg::decodeFFmpegThread() {
         {
             if(audio == NULL)
             {
-                audio = new WlAudio(playstatus);
+                audio = new WlAudio(playstatus, pFormatCtx->streams[i]->codecpar->sample_rate, callJAva);
                 audio->streamIndex = i;
                 audio->codecpar = pFormatCtx->streams[i]->codecpar;
             }
@@ -179,6 +179,22 @@ void WlFFmpeg::start() {
     if(LOG_DEBUG)
     {
         LOGD("解码完成");
+    }
+
+}
+
+void WlFFmpeg::pause() {
+    if(audio != NULL)
+    {
+        audio->pause();
+    }
+
+}
+
+void WlFFmpeg::resume() {
+    if(audio != NULL)
+    {
+        audio->resume();
     }
 
 }

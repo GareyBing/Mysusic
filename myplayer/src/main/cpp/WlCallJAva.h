@@ -20,11 +20,15 @@ public:
 
     jmethodID jmid_parpared;
 
+    jmethodID  jmid_load;
+
 public:
     WlCallJAva(JavaVM *javaVM, JNIEnv *env, jobject *obj);
     ~WlCallJAva();
 
     void onCallParpare(int type);
+
+    void onCallLoad(int type, bool load);
 
 };
 

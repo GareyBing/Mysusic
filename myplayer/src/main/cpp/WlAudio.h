@@ -7,6 +7,7 @@
 
 #include "WLQueue.h"
 #include "WlPlaystatus.h"
+#include "WlCallJAva.h"
 extern "C"
 {
 #include <libavcodec/avcodec.h>
@@ -26,12 +27,16 @@ public:
     AVPacket *avPacket = NULL;
     AVFrame *avFrame = NULL;
 
+    WlCallJAva *callJAva = NULL;
+
     pthread_t thread_play;
 
 
     int ret = -1;
     uint8_t *buffer = NULL;
     int data_size = 0;
+
+    int sample_rate = 0;
 
     //接口引擎
     SLObjectItf engineObject = NULL;
@@ -44,7 +49,7 @@ public:
 
     //pcm
     SLObjectItf  pcmPlayerObject = NULL;
-    SLPlayItf  pclPlayerplay;
+    SLPlayItf  pcmPlayerplay;
 
     //缓冲器队列接口
     SLAndroidSimpleBufferQueueItf pcmBufferQueue;
@@ -53,14 +58,20 @@ public:
     FILE *pcmFile;
     void *openslesbuffer;
     uint8_t  *out_buff;
+
 public:
-    WlAudio(WlPlaystatus *playstatus);
+    WlAudio(WlPlaystatus *playstatus, int sample_rate, WlCallJAva *callJAva);
     ~WlAudio();
 
     void play();
     int resampleAudio();
 
     void initOpenSLES();
+
+    int getCurrentSampleRateOpensles(int sample_rate);
+
+    void pause();
+    void resume();
 };
 
 

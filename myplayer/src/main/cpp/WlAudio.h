@@ -38,6 +38,12 @@ public:
 
     int sample_rate = 0;
 
+    int duration = 0;
+    AVRational time_base;
+    double now_time = 0;
+    double clock = 0;
+    double last_time = 0;
+
     //接口引擎
     SLObjectItf engineObject = NULL;
     SLEngineItf  engineEngine = NULL;
@@ -54,10 +60,6 @@ public:
     //缓冲器队列接口
     SLAndroidSimpleBufferQueueItf pcmBufferQueue;
 
-
-    FILE *pcmFile;
-    void *openslesbuffer;
-    uint8_t  *out_buff;
 
 public:
     WlAudio(WlPlaystatus *playstatus, int sample_rate, WlCallJAva *callJAva);

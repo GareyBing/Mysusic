@@ -59,6 +59,9 @@ void WlFFmpeg::decodeFFmpegThread() {
                 audio = new WlAudio(playstatus, pFormatCtx->streams[i]->codecpar->sample_rate, callJAva);
                 audio->streamIndex = i;
                 audio->codecpar = pFormatCtx->streams[i]->codecpar;
+                audio->duration = pFormatCtx->duration / AV_TIME_BASE;//总时长
+                audio->time_base = pFormatCtx->streams[i]->time_base;//流里每一帧持续时间分数表达式
+
             }
         }
     }

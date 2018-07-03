@@ -4,7 +4,9 @@ import android.support.v4.app.NavUtils;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.myplayer.WlTimeInfoBean;
 import com.myplayer.listener.WlOnParparedListener;
+import com.myplayer.listener.WlOnTimeInfoListener;
 import com.myplayer.listener.WlOnloadListener;
 import com.myplayer.listener.WlOnpauseResumeLintener;
 import com.myplayer.log.Mylog;
@@ -26,6 +28,8 @@ public class WlPlay {
     private String source;
     private WlOnloadListener wlOnloadListener;
     public WlOnpauseResumeLintener wlOnpauseResumeLintener;
+    private WlOnTimeInfoListener wlOnTimeInfoListener;
+    private static WlTimeInfoBean wlTimeInfoBean;
 
     public void setWlOnpauseResumeLintener(WlOnpauseResumeLintener wlOnpauseResumeLintener) {
         this.wlOnpauseResumeLintener = wlOnpauseResumeLintener;
@@ -48,6 +52,9 @@ public class WlPlay {
         this.wlOnloadListener = wlOnloadListener;
     }
 
+    public void setWlOnTimeInfoListener(WlOnTimeInfoListener wlOnTimeInfoListener) {
+        this.wlOnTimeInfoListener = wlOnTimeInfoListener;
+    }
 
     public void parpared() {
         Log.e("hgb","parpared");
@@ -60,6 +67,7 @@ public class WlPlay {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                Log.e("hgb","source = "+source);
                 n_parpared(source);
             }
         }).start();
@@ -89,7 +97,7 @@ public class WlPlay {
     }
 
     public void resume(){
-        n_pause();
+        n_resume();
         if(wlOnpauseResumeLintener != null){
             wlOnpauseResumeLintener.onPause(false);
         }
@@ -109,6 +117,18 @@ public class WlPlay {
             wlOnloadListener.onLoad(load);
         }
     }
+
+    public void onCallTimeInfo(int currentTime, int totalTime) {
+        if(wlOnTimeInfoListener != null) {
+            if(wlTimeInfoBean == null){
+                wlTimeInfoBean = new WlTimeInfoBean();
+            }
+            wlTimeInfoBean.setCurrentTime(currentTime);
+            wlTimeInfoBean.setTotalTime(totalTime);
+            wlOnTimeInfoListener.onTimeInfo(wlTimeInfoBean);
+        }
+    }
+
 
     private native void n_parpared(String source);
 

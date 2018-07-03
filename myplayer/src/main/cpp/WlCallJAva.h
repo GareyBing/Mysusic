@@ -22,6 +22,8 @@ public:
 
     jmethodID  jmid_load;
 
+    jmethodID jmid_timeinfo;
+
 public:
     WlCallJAva(JavaVM *javaVM, JNIEnv *env, jobject *obj);
     ~WlCallJAva();
@@ -29,6 +31,8 @@ public:
     void onCallParpare(int type);
 
     void onCallLoad(int type, bool load);
+
+    void onCallTimeInfo(int type, int current, int total);;
 
 };
 

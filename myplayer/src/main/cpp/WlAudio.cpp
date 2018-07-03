@@ -5,6 +5,7 @@
 #include "WlAudio.h"
 
 WlAudio::WlAudio(WlPlaystatus *playstatus, int sample_rate, WlCallJAva *callJAva) {
+    this->callJAva = callJAva;
     this->playstatus = playstatus;
     this->sample_rate = sample_rate;
     queue = new WLQueue(playstatus);
@@ -122,6 +123,13 @@ int WlAudio::resampleAudio() {//重采样,
             int out_channels = av_get_channel_layout_nb_channels(AV_CH_LAYOUT_STEREO);
             data_size = nb * out_channels * av_get_bytes_per_sample(AV_SAMPLE_FMT_S16);
 
+            now_time = avFrame->pts * av_q2d(time_base);//当前时间
+            if(now_time < clock)
+            {
+                now_time = clock;
+            }
+            clock = now_time;
+
           //  fwrite(buffer, 1, data_size, outFile);
             if(LOG_DEBUG )
             {
@@ -162,6 +170,15 @@ void pcmBufferCallBack(SLAndroidSimpleBufferQueueItf bf, void *context)
         int buffersize  = wlAudio->resampleAudio();//转码
         if(buffersize > 0)
         {
+            wlAudio->clock += buffersize / ((double)wlAudio->sample_rate *2 *2);
+
+            if(wlAudio->clock - wlAudio->last_time > 0.1)
+            {
+                wlAudio->last_time = wlAudio->clock;
+            }
+
+            wlAudio->callJAva->onCallTimeInfo(CHILD_THREAD, wlAudio->clock, wlAudio->duration);
+
             (*wlAudio->pcmBufferQueue)->Enqueue(wlAudio->pcmBufferQueue,
                                                 wlAudio->buffer, buffersize);
         }

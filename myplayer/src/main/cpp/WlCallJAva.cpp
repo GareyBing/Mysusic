@@ -20,7 +20,8 @@ WlCallJAva::WlCallJAva(JavaVM *javaVM, JNIEnv *env, jobject *obj) {
     }
 
     jmid_parpared = env->GetMethodID(jlz, "onCallParpare","()V");
-    jmid_load = env->GetMethodID(jlz, "onCallLoad", "(Z)V");
+    jmid_load =     env->GetMethodID(jlz, "onCallLoad", "(Z)V");
+    jmid_timeinfo = env->GetMethodID(jlz, "onCallTimeInfo", "(II)V");
 
 
 }
@@ -71,4 +72,24 @@ void WlCallJAva::onCallLoad(int type, bool load) {
         javaVM->DetachCurrentThread();
     }
 
+}
+
+void WlCallJAva::onCallTimeInfo(int type, int current, int total) {
+    if(type == MAIN_THREAD)
+    {
+        jniEnv->CallVoidMethod(jobj, jmid_timeinfo, current, total);
+    } else if (type == CHILD_THREAD) {
+        JNIEnv *jniEnv;
+        if(javaVM->AttachCurrentThread(&jniEnv, 0) != JNI_OK)
+        {
+            if(LOG_DEBUG)
+            {
+                LOGD("Get child jniEnv wrong");
+                return;
+
+            }
+        }
+        jniEnv->CallVoidMethod(jobj, jmid_timeinfo, current, total );
+        javaVM->DetachCurrentThread();
+    }
 }

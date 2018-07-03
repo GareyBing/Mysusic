@@ -41,13 +41,16 @@ Java_com_myplayer_palyer_WlPlay_n_1parpared(JNIEnv *env, jobject instance, jstri
         {
             callJAva = new WlCallJAva(javaVM, env, &instance);
         }
+        LOGD("ffmpeg url = %s", source)
         fFmpeg = new WlFFmpeg(playstatus, callJAva, source);
         fFmpeg->parpared();
         playstatus = new WlPlaystatus();
     }
 
     env->ReleaseStringUTFChars(source_, source);
-}extern "C"
+}
+
+extern "C"
 JNIEXPORT void JNICALL
 Java_com_myplayer_palyer_WlPlay_n_1start(JNIEnv *env, jobject instance) {
 
